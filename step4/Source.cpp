@@ -1,7 +1,5 @@
 #include <windows.h>
-#include<d3dx9.h>
-#include<tchar.h>
-#include<dinput.h>
+
 
 LRESULT CALLBACK wndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -82,4 +80,3 @@ LRESULT CALLBACK wndProc(HWND hInst, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 	return DefWindowProc(hInst, iMsg, wParam, lParam);
 }
-

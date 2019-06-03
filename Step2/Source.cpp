@@ -1,7 +1,6 @@
 #include <windows.h>
 #include<d3dx9.h>
 #include<tchar.h>
-#include<dinput.h>
 //DirectXの本体
 LPDIRECT3D9 pDirect3d;
 //描画のためのデバイス情報
