@@ -1,20 +1,11 @@
 #include <windows.h>
 #include<d3dx9.h>
 #include<tchar.h>
-#include<dinput.h>
+
 //DirectXの本体
 LPDIRECT3D9 pDirect3d;
 //描画のためのデバイス情報
 LPDIRECT3DDEVICE9 pDevice;
-LPDIRECTINPUT8 pDinput = NULL;
-LPDIRECTINPUTDEVICE8 pkey = NULL;
-HRESULT InitDinput(HWND hWnd);
-//入力キーの最大数
-
-void UpdateKeyStatus();
-//キー入力関数
-bool GetKeyStatus(int KeyNumber);
-HRESULT InitDinput(HWND hInst);
 
 HRESULT InitD3d(HWND hInst, const TCHAR* filePath);
 const int D3DFVF_CUSTOMVERTEX(D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1);
@@ -22,10 +13,8 @@ LPDIRECT3DTEXTURE9 pTexture;
 void InitPresentParameters(HWND);
 HRESULT BuildDxDevice(HWND hInst, const TCHAR* filePath);
 //const int D3DFVF_CUSTOMVERTEX = (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1);
-static const int MAX_KEY_NUMBER = 256;//入力キー判定のマスク値
-const int MASK_NUM = 0x80;
-BYTE KeyState[MAX_KEY_NUMBER];
-//キーステータス更新関数
+
+
 LRESULT CALLBACK wndProc(HWND, UINT, WPARAM, LPARAM);
 struct CUSTOMVERTEX {
 	float x, y, z;//頂点座標
@@ -68,9 +57,7 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR szstr, INT iCmdsh
 
 	ShowWindow(hInsT, SW_SHOW);
 	UpdateWindow(hInsT);
-	if (FAILED(InitDinput(hInsT))) {
-		return 0;
-	}
+	
 	//BuildDxDevice(hInsT, _T("hopping.jpg"));
 	BuildDxDevice(hInsT, _T("hopping.jpg"));
 
@@ -95,34 +82,7 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR szstr, INT iCmdsh
 				pDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0x00, 0x00, 0x00), 1.0, 0);
 				pDevice->BeginScene();
 
-				UpdateKeyStatus();
-				if (GetKeyStatus(DIK_RETURN)) {
-					break;
-				}
-				if (GetKeyStatus(DIK_UP))
-				{
-					v[0].y -= 5.0f;
-					v[1].y -= 5.0f;
-					v[2].y -= 5.0f;
-					v[3].y -= 5.0f;
-				}
-				if (GetKeyStatus(DIK_DOWN)) {
-					v[0].y += 5.0f;
-					v[1].y += 5.0f;
-					v[2].y += 5.0f;
-					v[3].y += 5.0f;
-				}
-				if (GetKeyStatus(DIK_LEFT)) {
-					v[0].x -= 5.0f;
-					v[1].x -= 5.0f;
-					v[2].x -= 5.0f;
-					v[3].x -= 5.0f;
-				}
-				if (GetKeyStatus(DIK_RIGHT)) {
-					v[0].x += 5.0f;
-					v[1].x += 5.0f;
-					v[2].x += 5.0f;
-					v[3].x += 5.0f;
+				
 				}
 				pDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
 				pDevice->SetTexture(0, pTexture);
@@ -138,31 +98,13 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR szstr, INT iCmdsh
 		timeEndPeriod(1);
 
 	}
-	if (pkey)
-	{
-		pkey->Unacquire();
-	}
-	pkey->Release();
-	pkey = nullptr;
-	pDinput->Release();
-	pDinput = nullptr;
-	pDevice->Release();
-	pDevice = nullptr;
-	pDirect3d->Release();
-	pDirect3d = nullptr;
-	pTexture->Release();
-	pTexture = nullptr;
-
-	return (int)msg.wParam;
-}
+	
 
 HRESULT BuildDxDevice(HWND hInst, const TCHAR* filePath) {
 	if (FAILED(InitD3d(hInst, filePath))) {
 		return E_FAIL;
 	}
-	if (FAILED(InitDinput(hInst))) {
-		return E_FAIL;
-	}
+	
 	//D3Dのポインタ変数にDirect3DCreate9関数(Direct3Dを作る関数)で作成したものを代入
 	pDirect3d = Direct3DCreate9(D3D_SDK_VERSION);
 
@@ -235,94 +177,4 @@ void initrender()
 	pDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
 	pDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
 	pDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-}
-//描画するための自作関数
-//VOID draw()
-//{
-//	
-//
-//	pDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0x00, 0x00, 0x00), 1.0, 0);
-//	if (SUCCEEDED(pDevice->BeginScene()))
-//	{
-//		UpdateKeyStatus();
-//		if (GetKeyStatus(DIK_RETURN)) {
-//			
-//		}
-//		if (GetKeyStatus(DIK_UP))
-//		{
-//			v[0].y -= 5.0f;
-//			v[1].y -= 5.0f;
-//			v[2].y -= 5.0f;
-//			v[3].y -= 5.0f;
-//		}
-//		if (GetKeyState(DIK_DOWN)) {
-//			v[0].y += 5.0f;
-//			v[1].y += 5.0f;
-//			v[2].y += 5.0f;
-//			v[3].y += 5.0f;
-//		}
-//		if (GetKeyState(DIK_LEFT)) {
-//			v[0].x -= 5.0f;
-//			v[1].x -= 5.0f;
-//			v[2].x -= 5.0f;
-//			v[3].x -= 5.0f;
-//		}
-//		if (GetKeyState(DIK_RIGHT)) {
-//			v[0].x += 5.0f;
-//			v[1].x += 5.0f;
-//			v[2].x += 5.0f;
-//			v[3].x += 5.0f;
-//		}
-//		pDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
-//		pDevice->SetTexture(0, pTexture);
-//		pDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, v, sizeof(CUSTOMVERTEX));
-//
-//		pDevice->EndScene();
-//	}
-//	pDevice->Present(0, 0, 0, 0);
-//}
-HRESULT InitDinput(HWND hInst)
-{
-	HRESULT hr;
-	//DirectInput８の作成
-	if (FAILED(hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8, (VOID * *)& pDinput, NULL)))
-	{
-		return hr;
-	}
-	//InputDeviceを作成
-	if (FAILED(hr = pDinput->CreateDevice(GUID_SysKeyboard, &pkey, NULL)))
-	{
-		return hr;
-	}
-	//フォーマットの設定,形式
-	if (FAILED(hr = pkey->SetDataFormat(&c_dfDIKeyboard)))
-	{
-		return hr;
-	}
-	//協調レベルを設定
-	if (FAILED(hr = pkey->SetCooperativeLevel(hInst, DISCL_NONEXCLUSIVE | DISCL_BACKGROUND)))
-	{
-		return hr;
-	}
-	//権限の取得
-	pkey->Acquire();
-	return S_OK;
-}
-//キーステータス更新関数
-void UpdateKeyStatus()
-{
-	HRESULT hr = pkey->Acquire();
-	if ((hr == DI_OK) || (hr == S_FALSE)) {
-		pkey->GetDeviceState(sizeof(KeyState), &KeyState);
-
-	}
-}
-//キー入力関数
-bool GetKeyStatus(int KeyNumber)
-{
-	if (KeyState[KeyNumber] & 0x80)
-	{
-		return true;
-	}
-	return false;
 }
